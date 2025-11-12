@@ -10,6 +10,7 @@ class WorkingHoursCard extends StatelessWidget {
   final bool showChart;
   final List<double>? chartData; // Data for the bar chart
   final List<String>? chartLabels; // Labels for the bar chart
+  final Color? textColor;
 
   const WorkingHoursCard({
     super.key,
@@ -19,6 +20,7 @@ class WorkingHoursCard extends StatelessWidget {
     this.showChart = false,
     this.chartData,
     this.chartLabels,
+    this.textColor = Colors.black, // default black
   });
 
   @override

@@ -23,7 +23,7 @@ class AttendanceSummaryCard extends StatelessWidget {
     this.leave,
     this.sick_leave,
     this.casual_leave,
-    this.monthDropdown,
+    this.monthDropdown, required Color textColor,
   }) : super(key: key);
 
   @override

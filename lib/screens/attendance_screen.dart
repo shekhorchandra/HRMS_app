@@ -185,6 +185,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
 
 
 
+      // Inside body: SingleChildScrollView
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),
         child: Column(
@@ -196,235 +197,175 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                 style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black87),
+                    color: Colors.black),
               ),
             ),
             const SizedBox(height: 16),
-            Padding(
-              padding: const EdgeInsets.all(0.0),
-              child: Card(
-                color: Colors.transparent, // make the card itself transparent
-                elevation: 5,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(15),
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(
-                      sigmaX: 5,
-                      sigmaY: 5,
-                    ), // subtle blur
-                    child: Container(
+
+            // Start Time Card
+            Card(
+              color: Colors.white, // white card
+              elevation: 5, // elevation
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Text(
+                      "Start Time",
+                      style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      checkInTime,
+                      style: const TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.location_on,
+                            size: 18, color: Colors.black54),
+                        const SizedBox(width: 4),
+                        Text(
+                          currentLocation,
+                          style: const TextStyle(color: Colors.black54),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Google Map
+                    _isLoadingLocation
+                        ? Column(
+                      children: [
+                        const CircularProgressIndicator(),
+                        const SizedBox(height: 10),
+                        Text(
+                          _locationError.isNotEmpty
+                              ? _locationError
+                              : 'Getting your location...',
+                          style: const TextStyle(color: Colors.black),
+                        ),
+                      ],
+                    )
+                        : _locationError.isNotEmpty
+                        ? Text(
+                      _locationError,
+                      style: const TextStyle(color: Colors.black),
+                    )
+                        : Container(
+                      height: 180,
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(15),
-                        gradient: LinearGradient(
-                          colors: [
-                            const Color(0xFFFFFFFF).withOpacity(0.6), // lighter white
-                            const Color(0xFF308DCC).withOpacity(0.6), // lighter blue
-                          ],
-                          begin: Alignment.bottomLeft,
-                          end: Alignment.topLeft,
-                        ),
+                        borderRadius: BorderRadius.circular(10),
                         border: Border.all(
-                          color: Colors.white.withOpacity(0.2), // soft border for glass effect
-                        ),
+                            color: Colors.grey[300]!),
                       ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Center(
-                              child: Text(
-                                "Start Time",
-                                style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white),
-                              ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: GoogleMap(
+                          onMapCreated: _onMapCreated,
+                          initialCameraPosition: CameraPosition(
+                            target: _currentPosition ??
+                                const LatLng(23.777176, 90.399452),
+                            zoom: 15.0,
+                          ),
+                          markers: _currentPosition != null
+                              ? {
+                            Marker(
+                              markerId: const MarkerId(
+                                  "current_location"),
+                              position: _currentPosition!,
                             ),
-                            const SizedBox(height: 8),
-                            Center(
-                              child: Text(
-                                checkInTime,
-                                style: const TextStyle(
-                                    fontSize: 28,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white),
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Center(
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(Icons.location_on,
-                                      size: 18, color: Colors.white70),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    currentLocation,
-                                    style: const TextStyle(color: Colors.white70),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            _isLoadingLocation
-                                ? Center(
-                              child: Column(
-                                children: [
-                                  const CircularProgressIndicator(),
-                                  const SizedBox(height: 10),
-                                  Center(
-                                    child: Text(
-                                      _locationError.isNotEmpty
-                                          ? _locationError
-                                          : 'Getting your location...',
-                                      style: const TextStyle(color: Colors.white),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            )
-                                : _locationError.isNotEmpty
-                                ? Center(
-                              child: Text(
-                                _locationError,
-                                style: const TextStyle(color: Colors.white),
-                              ),
-                            )
-                                : Container(
-                              height: 180,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                border: Border.all(
-                                    color: Colors.white.withOpacity(0.3)),
-                              ),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(10),
-                                child: GoogleMap(
-                                  onMapCreated: _onMapCreated,
-                                  initialCameraPosition: CameraPosition(
-                                    target: _currentPosition ??
-                                        const LatLng(23.777176, 90.399452),
-                                    zoom: 15.0,
-                                  ),
-                                  markers: _currentPosition != null
-                                      ? {
-                                    Marker(
-                                      markerId: const MarkerId(
-                                          "current_location"),
-                                      position: _currentPosition!,
-                                    ),
-                                  }
-                                      : {},
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            // Check In Button
-                            SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton.icon(
-                                onPressed: () {
-                                  print("Check In button pressed!");
-                                },
-                                icon: const Icon(Icons.access_time, color: Colors.white),
-                                label: const Text(
-                                  "Check In",
-                                  style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white),
-                                ),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.green[700],
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(15),
-                                  ),
-                                  padding: const EdgeInsets.symmetric(vertical: 15),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            // Check Out Button
-                            SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton.icon(
-                                onPressed: () {
-                                  print("Check Out button pressed!");
-                                },
-                                icon: const Icon(Icons.logout_sharp, color: Colors.white),
-                                label: const Text(
-                                  "Check Out",
-                                  style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white),
-                                ),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.red[700],
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(15),
-                                  ),
-                                  padding: const EdgeInsets.symmetric(vertical: 15),
-                                ),
-                              ),
-                            ),
-                          ],
+                          }
+                              : {},
                         ),
                       ),
                     ),
-                  ),
+
+                    const SizedBox(height: 16),
+                    // Check In Button
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          print("Check In button pressed!");
+                        },
+                        icon: const Icon(Icons.access_time, color: Colors.white),
+                        label: const Text(
+                          "Check In",
+                          style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green[700],
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 15),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    // Check Out Button
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          print("Check Out button pressed!");
+                        },
+                        icon: const Icon(Icons.logout_sharp, color: Colors.white),
+                        label: const Text(
+                          "Check Out",
+                          style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red[700],
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 15),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-
             ),
+
             const SizedBox(height: 20),
-            // Action Buttons
+            // Action Buttons Card
             Card(
-              color: Colors.transparent, // make card itself transparent
+              color: Colors.white, // white card
               elevation: 5,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(15),
               ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(15),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(
-                    sigmaX: 5,
-                    sigmaY: 5,
-                  ), // subtle blur
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(15),
-                      gradient: LinearGradient(
-                        colors: [
-                          const Color(0xFFFFFFFF).withOpacity(0.6),
-                          const Color(0xFF308DCC).withOpacity(0.6),
-                        ],
-                        begin: Alignment.bottomLeft,
-                        end: Alignment.topLeft,
-                      ),
-                      border: Border.all(
-                        color: Colors.white.withOpacity(0.2), // soft border for glass effect
-                      ),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          _buildActionButton(Icons.refresh, "Refresh", () {
-                            _determinePosition();
-                          }),
-                          _buildActionButton(Icons.location_on_outlined, "Set Location", () {}),
-                          _buildActionButton(Icons.qr_code_scanner, "Scan QR", () {}),
-                        ],
-                      ),
-                    ),
-                  ),
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildActionButton(Icons.refresh, "Refresh", () {
+                      _determinePosition();
+                    }),
+                    _buildActionButton(Icons.location_on_outlined, "Set Location", () {}),
+                    _buildActionButton(Icons.qr_code_scanner, "Scan QR", () {}),
+                  ],
                 ),
               ),
             ),
@@ -433,6 +374,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
           ],
         ),
       ),
+
       // bottomNavigationBar: CustomBottomNavBar(
       //   selectedIndex: _selectedIndex,
       //   onItemTapped: _onItemTapped,
